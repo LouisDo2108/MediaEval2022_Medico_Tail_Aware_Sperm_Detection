@@ -134,3 +134,4 @@ dmypy.json
 # Folder data
 /data
 /runs
+/yolov5
