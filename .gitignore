@@ -130,3 +130,7 @@ dmypy.json
 
 # Colab
 /content/sample_data
+
+# Folder data
+/data
+/runs
