@@ -28,11 +28,11 @@ from ByteTrack_utils.utils.get_tracking_metrics import get_tracking_metrics
 
 def make_parser():
     parser = argparse.ArgumentParser("Evaluate VISEM data using ByteTrack")
-    parser.add_argument("--data_dir", type=str, default="./VISEM_Tracking_Train_v4/",
+    parser.add_argument("--data_dir", type=str, default="../VISEM_Tracking_Train_v4/",
         help="VISEM data root directory", nargs='?')
-    parser.add_argument("--result_dir", type=str, default="./result/",
+    parser.add_argument("--result_dir", type=str, default="../result/",
         help="A directory to store resulted files (The same as prepare_data.py's)", nargs='?')
-    parser.add_argument("--gt_dir", type=str, default='./gt/',
+    parser.add_argument("--gt_dir", type=str, default='../gt/',
                         help="A directory for storing validation ground truth files (The same as prepare_data.py's)", nargs='?')
     parser.add_argument("--yolo_model_path", type=str,
                         default=None, help="Path to the trained yolo model")
@@ -51,9 +51,9 @@ def make_parser():
 
 if __name__ == "__main__":
     args = make_parser().parse_args()
-    args.data_dir = Path(args.data_dir).resolve()
-    args.result_dir = Path(args.result_dir).resolve()
-    args.gt_dir = Path(args.gt_dir).resolve()
+    args.data_dir = str(Path(args.data_dir).resolve())
+    args.result_dir = str(Path(args.result_dir).resolve())
+    args.gt_dir = str(Path(args.gt_dir).resolve())
 
     # Load yolov5 trained model
     MODEL_PATH = args.yolo_model_path
