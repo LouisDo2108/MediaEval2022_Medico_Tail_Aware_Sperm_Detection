@@ -77,15 +77,12 @@ if __name__ == "__main__":
     print("Detection result")
     print(result)
 
-    with open(os.path.join(args.result_dir, "detection.txt"), "w") as text_file:
+    with open("detection.txt", "w") as text_file:
+        result = ' '.join(str(item) for item in result)    
         text_file.write(result)
-    print("Saved result to {}".format(
-        os.path.join(args.result_dir, "detection.txt")))
+    print("Saved result to {}".format(str(Path('detection.txt').resolve())))
 
     summary=get_tracking_metrics(args.result_dir, args.gt_dir)
     print(summary)
-
-    with open(os.path.join(args.result_dir, "tracking.txt"), "w") as text_file:
-        text_file.write(summary)
-    print("Saved result to {}".format(
-        os.path.join(args.result_dir, "tracking.txt")))
+    summary.to_csv('tracking.csv')
+    print("Saved result to {}".format(str(Path('tracking.csv').resolve())))
