@@ -61,17 +61,19 @@ unzip {PATH_TO_DATA}/visemtracking.zip -d /content/MediaEval2022_Medico/
 !export PYTHONPATH="${PYTHONPATH}:{PATH_TO_BYTETRACK}/ByteTrack/"
 ```
 
-6. Run Task_1/prepare_data.py. For example:
+6. Go to Task_1/ and run prepare_data.py. For example:
 
 ```
+cd /content/MediaEval2022_Medico/Task_1
 python /content/MediaEval2022_Medico/Task_1/prepare_data.py \
 --root_dir /content/MediaEval2022_Medico/VISEM_Tracking_Train_v4/ \
 --gt_dir /content/MediaEval2022_Medico/gt/
 ```
 
-7. Run Task_1/evaluate.py
+7. Go to Task_1/ and run Task_1/evaluate.py
 
 ```
+cd /content/MediaEval2022_Medico/Task_1
 python /content/MediaEval2022_Medico/Task_1/evaluate.py \
 --result_dir /content/MediaEval2022_Medico/result/ \
 --gt_dir /content/MediaEval2022_Medico/gt/ \
