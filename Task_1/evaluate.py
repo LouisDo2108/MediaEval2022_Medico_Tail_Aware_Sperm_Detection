@@ -6,7 +6,7 @@ import torch
 import argparse
 from ByteTrack.exps.example.mot.visem import Exp
 from ByteTrack.yolox.evaluators.mot_evaluator import MOTEvaluator
-from utils.get_tracking_metrics import get_tracking_metrics
+from ByteTrack_utils.utils.get_tracking_metrics import get_tracking_metrics
 
 # import json
 # import cv2
@@ -33,12 +33,12 @@ def make_parser():
     parser.add_argument("--result_dir", type=str, default="./result/", \
         help="A folder for storing validation results", nargs='?')
     parser.add_argument("--gt_dir", type=str, default='./gt/', help='A directory for storing validation gt files', nargs='?')
-    parser.add_argument("--yolo_model_path", type=float, default=0.6, help="Path to the trained yolo model", nargs='?')
+    parser.add_argument("--yolo_model_path", type=str, default=None, help="Path to the trained yolo model", nargs='?')
     parser.add_argument("--track_thresh", type=float, default=0.6, help="tracking confidence threshold", nargs='?')
     parser.add_argument("--track_buffer", type=int, default=30, help="the frames for keep lost tracks", nargs='?')
     parser.add_argument("--match_thresh", type=float, default=0.9, help="matching threshold for tracking", nargs='?')
     parser.add_argument("--min-box-area", type=float, default=100, help='filter out tiny boxes', nargs='?')
-    parser.add_argument("--mot20", dest="mot20", default=False, action="store_true", help="test mot20.", nargs='?')
+    parser.add_argument("--mot20", dest="mot20", default=False, action="store_true", help="test mot20.")
     return parser
 
 if __name__ == "__main__":

@@ -1,12 +1,11 @@
-from convert_bbox_format import ccwh2xyxy, xyxy2xywh
-from hashing_trackid import str_to_int
+from ByteTrack_utils.utils.convert_bbox_format import ccwh2xyxy, xyxy2xywh
+from ByteTrack_utils.utils.hashing_trackid import str_to_int
 from natsort import natsorted
 import glob
 import os
 import pandas as pd
 
-
-def creat_val_gt(val_path, output_path, height, width):
+def create_val_gt(val_path, output_path, height, width):
     for folder in natsorted(glob.glob(os.path.join(val_path, '*'))):
         print(folder)
         df = pd.DataFrame()

@@ -3,7 +3,7 @@ from natsort import natsorted
 import cv2
 import numpy as np
 import json
-from convert_bbox_format import ccwh2xyxy_single, xyxy2xywh_single
+from ByteTrack_utils.utils.convert_bbox_format import ccwh2xyxy_single, xyxy2xywh_single
 
 
 def create_annotations(DATA_PATH, OUT_PATH, SPLITS=['Train', 'Val']):
