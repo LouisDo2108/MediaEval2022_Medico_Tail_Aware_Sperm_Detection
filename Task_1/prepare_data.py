@@ -11,9 +11,9 @@ def make_parser():
     parser = argparse.ArgumentParser(
         "Prepare data for evaluate YoloV5 using ByteTrack")
     parser.add_argument("--data_dir", type=str, default='./VISEM_Tracking_Train_v4/',
-                        help='The data root directory', nargs='?')
+                        help='VISEM data root directory', nargs='?')
     parser.add_argument("--gt_dir", type=str, default='./gt/',
-                        help='A directory for storing validation gt files', nargs='?')
+                        help='A directory for storing validation ground truth files', nargs='?')
     parser.add_argument("--test_size", type=float, default=0.2,
                         help='The validation/test ratio', nargs='?')
     return parser
@@ -50,7 +50,9 @@ def create_gt(args, img_h, img_w):
 if __name__ == "__main__":
 
     args = make_parser().parse_args()
-
+    args.data_dir = Path(args.data_dir).resolve()
+    args.gt_dir = Path(args.gt_dir).resolve()
+    
     # Create a validation folder
     create_val_dir(args)
 
