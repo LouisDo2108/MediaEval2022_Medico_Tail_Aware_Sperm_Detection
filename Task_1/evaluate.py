@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     # Run evaluation
     Path(args.gt_dir).mkdir(parents=True, exist_ok=True)
-    Path(args.result_dir).resolve()).mkdir(parents = True, exist_ok = True)
+    Path(args.result_dir).mkdir(parents = True, exist_ok = True)
     result=evaluator.evaluate(model, result_folder = args.result_dir)
     print("Detection result")
     print(result)
