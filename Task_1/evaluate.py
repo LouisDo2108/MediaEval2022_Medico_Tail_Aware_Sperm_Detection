@@ -51,7 +51,6 @@ if __name__ == "__main__":
     model = torch.hub.load('ultralytics/yolov5', 'custom', path=MODEL_PATH) #, device='cpu'
     
     # Create dataloader
-    
     train_ann = os.path.join(args.data_dir, 'annotations/Train.json')
     val_ann = os.path.join(args.data_dir, 'annotations/Val.json')
     exp = Exp(args.data_dir, train_ann, val_ann, img_size=640)
@@ -61,10 +60,18 @@ if __name__ == "__main__":
     evaluator = MOTEvaluator(dataloader=dataloader, img_size=[640, 640], confthre=0.1, nmsthre=0.7, num_classes=3, args=args)
     
     # Run evaluation
+    Path(args.gt_dir).mkdir(parents=True, exist_ok=True)
+    Path(args.result_dir).mkdir(parents=True, exist_ok=True)
     result = evaluator.evaluate(model, result_folder=args.result_dir)
     print("Detection result")
     print(result)
+    with open(os.path.join(args.result_dir, "detection.txt"), "w") as text_file:
+        text_file.write(result)
+    print("Saved result to {}".format(os.path.join(args.result_dir, "detection.txt")))
     
     summary = get_tracking_metrics(args.result_dir, args.gt_dir)
     print(summary)
+    with open(os.path.join(args.result_dir, "tracking.txt"), "w") as text_file:
+        text_file.write(summary)
+    print("Saved result to {}".format(os.path.join(args.result_dir, "tracking.txt")))
     

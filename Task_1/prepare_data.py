@@ -43,6 +43,7 @@ def create_anno_json(args):
 
 def create_gt(args, img_h, img_w):
     VAL_PATH = os.path.join(args.data_dir, 'Val')
+    Path(os.path.join(args.gt_dir)).mkdir(parents=True, exist_ok=True)
     create_val_gt(VAL_PATH, args.gt_dir, img_h, img_w)
 
 

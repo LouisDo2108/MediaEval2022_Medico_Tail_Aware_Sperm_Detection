@@ -4,6 +4,7 @@ from natsort import natsorted
 import glob
 import os
 import pandas as pd
+from pathlib import Path
 
 def create_val_gt(val_path, output_path, height, width):
     for folder in natsorted(glob.glob(os.path.join(val_path, '*'))):
