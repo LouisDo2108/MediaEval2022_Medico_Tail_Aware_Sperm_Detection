@@ -5,7 +5,10 @@ import glob
 from pathlib import Path
 
 def create_yaml(main_train_dir):
-    with open("train_val.yaml", "w") as f:
+    
+    SAVE_PATH = os.path.join(main_train_dir, "train_val.yaml")
+    
+    with open(SAVE_PATH, "w") as f:
         
         # Writing train paths to yaml
         f.write("train: [ \n")
@@ -25,4 +28,4 @@ def create_yaml(main_train_dir):
         # Writing class names
         f.write('names: [ "sperm", "cluster", "small_or_pinhead"]')
     f.close()
-    return str(Path("train_val.yaml").resolve())
+    print("Saved to", SAVE_PATH)
