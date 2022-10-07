@@ -14,12 +14,12 @@ cd /content/medico/
 git clone https://github.com/LouisDo2108/ByteTrack.git &\
 cd /content/medico/ByteTrack &\
 pip3 install -r requirements.txt &\
-python3 setup.py develop &
+python3 setup.py develop
 ```
 2. Go back to root folder and clone https://github.com/ultralytics/yolov5 and setup YoloV5 normally by following the readme.md instructions.
 ```
 cd /content/medico/ &\
-git clone https://github.com/ultralytics/yolov5 &\
+git clone https://github.com/ultralytics/yolov5.git &\
 cd /content/medico/yolov5 &\
 pip3 install -r requirements.txt
 ```
