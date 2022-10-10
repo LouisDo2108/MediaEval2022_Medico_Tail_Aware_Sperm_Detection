@@ -8,16 +8,17 @@ from yolox.exp import Exp as MyExp
 from yolox.data import get_yolox_datadir
 
 class Exp(MyExp):
-    def __init__(self):
+    def __init__(self, data_dir, train_ann, val_ann, img_size):
         super(Exp, self).__init__()
         self.num_classes = 3
         self.depth = 1.33
         self.width = 1.25
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
-        self.train_ann = "/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/annotations/Train.json"
-        self.val_ann = "/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/annotations/Val.json"
-        self.input_size = (640, 640)
-        self.test_size = (640, 640)
+        self.data_dir = data_dir
+        self.train_ann = train_ann#"/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/annotations/Train.json"
+        self.val_ann = val_ann#"/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/annotations/Val.json"
+        self.input_size = (img_size, img_size)
+        self.test_size = (img_size, img_size)
         self.random_size = (18, 32)
         self.max_epoch = 10
         self.print_interval = 20
@@ -39,8 +40,7 @@ class Exp(MyExp):
         )
 
         dataset = MOTDataset(
-            # data_dir=os.path.join(get_yolox_datadir(), "ch_all"),
-            data_dir="/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/",
+            data_dir=self.data_dir,#"/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/",
             json_file=self.train_ann,
             name='',
             img_size=self.input_size,
@@ -95,7 +95,7 @@ class Exp(MyExp):
         from yolox.data import MOTDataset, ValTransform
 
         valdataset = MOTDataset(
-            data_dir="/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/",
+            data_dir=self.data_dir,#"/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/",
             json_file=self.val_ann,
             img_size=self.test_size,
             name='train',

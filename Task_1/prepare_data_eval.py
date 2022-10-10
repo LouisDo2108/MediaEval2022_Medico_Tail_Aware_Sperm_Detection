@@ -54,8 +54,8 @@ if __name__ == "__main__":
     args.gt_dir = str(Path(args.gt_dir).resolve())
     
     # Create a validation folder
-    if os.path.exists(os.path.join(args.data_dir, 'Val')) and \
-        len(os.listdir(os.path.join(args.data_dir, 'Val'))) > 0:
+    if not os.path.exists(os.path.join(args.data_dir, 'Val')) or \
+        len(os.listdir(os.path.join(args.data_dir, 'Val'))) == 0:
         create_val_dir(args)
 
     # Create annotation json files

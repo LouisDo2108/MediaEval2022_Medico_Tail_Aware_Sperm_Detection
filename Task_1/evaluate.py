@@ -31,9 +31,9 @@ def make_parser():
     parser.add_argument("--data_dir", type=str, default="../VISEM_Tracking_Train_v4/",
         help="VISEM data root directory", nargs='?')
     parser.add_argument("--result_dir", type=str, default="../result/",
-        help="A directory to store resulted files (The same as prepare_data.py's)", nargs='?')
+        help="A directory to store resulted files", nargs='?')
     parser.add_argument("--gt_dir", type=str, default='../gt/',
-                        help="A directory for storing validation ground truth files (The same as prepare_data.py's)", nargs='?')
+                        help="A directory for storing validation ground truth files (The same as prepare_data_eval.py's)", nargs='?')
     parser.add_argument("--yolo_model_path", type=str,
                         default=None, help="Path to the trained yolo model")
     parser.add_argument("--track_thresh", type=float, default=0.6,
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     # Load yolov5 trained model
     MODEL_PATH = args.yolo_model_path
     model = torch.hub.load('ultralytics/yolov5', 'custom',
-                           path=MODEL_PATH)  # , device='cpu'
+                           path=MODEL_PATH)
 
     # Create dataloader
     train_ann = os.path.join(args.data_dir, 'annotations/Train.json')
