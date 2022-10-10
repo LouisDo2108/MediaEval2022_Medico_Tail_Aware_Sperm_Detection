@@ -35,8 +35,8 @@ if __name__ == "__main__":
     args = make_parser().parse_args()
     args.data_dir = str(Path(args.data_dir).resolve())
     
-    if os.path.exists(os.path.join(args.data_dir, 'Val')) and \
-        len(os.listdir(os.path.join(args.data_dir, 'Val'))) > 0:
+    if not os.path.exists(os.path.join(args.data_dir, 'Val')) or \
+        len(os.listdir(os.path.join(args.data_dir, 'Val'))) == 0:
         create_val_dir(args)
 
     create_yaml(args.data_dir)
