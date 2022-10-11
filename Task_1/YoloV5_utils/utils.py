@@ -1,81 +1,86 @@
+import pandas as pd
+from utils.plots import Annotator, colors, save_one_box
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import glob
 from pathlib import Path
 import cv2
 from tqdm.notebook import tqdm
-# import matplotlib.pyplot as plt
+from ByteTrack_utils.utils.hashing_trackid import str_to_int
 from ByteTrack_utils.utils.convert_bbox_format import ccwh2xyxy
 from natsort import natsorted
 from volov5.utils.plots import Annotator, colors
 
+
 def create_yaml(main_train_dir):
-    
+
     SAVE_PATH = os.path.join(main_train_dir, "train_val.yaml")
-    
+
     with open(SAVE_PATH, "w") as f:
-        
+
         # Writing train paths to yaml
         f.write("train: [ \n")
         for t in sorted(glob.glob(os.path.join(main_train_dir, "Train", "*"))):
             f.write(t + ",\n")
         f.write("]\n\n")
-        
+
         # writing validation paths to yaml
         f.write("val: [\n")
         for v in sorted(glob.glob(os.path.join(main_train_dir, "Val", "*"))):
             f.write(v + ",\n")
         f.write("]\n\n")
-        
+
         # writing number of class parameter
         f.write("nc: 3\n\n")
-        
+
         # Writing class names
         f.write('names: [ "sperm", "cluster", "small_or_pinhead"]')
     f.close()
 
 
-def get_gt_video(ids, img_size=(480, 640), fps=49):
+def get_gt_video(data_path, gt_dest_path, img_size=(480, 640), fps=49, folder='Train'):
 
+    ids = [x for x in os.listdir('{}/{}'.format(data_path, folder))]
     h, w = img_size
 
     for id in tqdm(ids):
-        images_path = Path('/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/Val/{}/images'.format(id))
-        labels_path = Path('/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/Val/{}/labels'.format(id))
+        images_path = Path(
+            '{}/{}/{}/images'.format(data_path, folder, id))
+        labels_path = Path(
+            '{}/{}/{}/labels_ftid'.format(data_path, folder, id))
         classes = ['sperm', 'cluster', 'small']
         images = natsorted([x for x in images_path.iterdir()], key=str)
 
-
-        video_name = '/content/drive/MyDrive/MediaEval2022_Medico/{}gt.mp4'.format(id)
-
+        video_name = '{}/{}_gt_videos/{}gt.mp4'.format(
+            folder, id)
+        print(video_name)
         frame = cv2.imread(str(images[0]))
         height, width, layers = frame.shape
 
-        video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width,height))
+        video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(
+            *'mp4v'), fps, (width, height))
 
-        count = 0
         for image in tqdm(images):
             img = cv2.imread(str(image))
             annotator = Annotator(img, line_width=2, example=str('yolov5m'))
             name = image.stem
             labels = labels_path / image.stem
-            labels = str(labels) + '.txt'
-            # print(labels)
+            labels = str(labels) + '_with_ftid.txt'
             if os.path.exists(labels) == True:
-                anns = np.genfromtxt(labels, dtype='float32')
+                anns = np.genfromtxt(labels, dtype='str')
                 anns = np.atleast_2d(anns)
-                anns[:, 1:] = ccwh2xyxy(480, 640, anns[:, 1:])
+                track_id = np.array(
+                    list(map(str_to_int, list(anns[:, 0]))), dtype='uint32')
+                anns[:, 0] = track_id
+                anns[:, 2:] = ccwh2xyxy(480, 640, anns[:, 2:].astype(
+                    'float32')).round().astype('int32')
                 for ann in anns:
-                    cls = classes[int(ann[0])]
-                    annotator.box_label(ann[1:].round(), cls, color=colors(int(ann[0]), True))
-                    # cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
-                    # cv2.putText(img,cls,(x,y),0,0.3,(0,255,0))
-            # plt.gcf().set_size_inches(6.4, 4.8)
-            # plt.imshow(annotator.result())
+                    cls = "{}{}{}".format(str(ann[0])[:2], str(
+                        ann[0])[-2:], classes[int(ann[1])])
+                    annotator.box_label(
+                        ann[2:], cls, color=colors(int(ann[1]), True))
             video.write(annotator.result())
-            # count += 1
-            # if count > 30:
-            #     break
 
         cv2.destroyAllWindows()
         video.release()
