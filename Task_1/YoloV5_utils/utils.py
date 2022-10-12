@@ -1,5 +1,4 @@
 import pandas as pd
-from utils.plots import Annotator, colors, save_one_box
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -10,7 +9,9 @@ from tqdm.notebook import tqdm
 from ByteTrack_utils.utils.hashing_trackid import str_to_int
 from ByteTrack_utils.utils.convert_bbox_format import ccwh2xyxy
 from natsort import natsorted
+import torch
 from volov5.utils.plots import Annotator, colors
+from natsort import natsorted
 
 
 def create_yaml(main_train_dir):
@@ -85,3 +86,74 @@ def get_gt_video(data_path, gt_dest_path, img_size=(480, 640), fps=49, folder='T
         cv2.destroyAllWindows()
         video.release()
         print("Saved to", video_name)
+
+
+def get_video_splits(id, model_path, data_path='/content/drive/MyDrive/MediaEval2022_Medico/VISEM_Tracking_Train_v4/', split='Train',
+                     img_size=(480, 640), fps=49, min_frames_len=5, std_scale=3.5, crop=0.2,
+                     candidate_ratio_lb=0.25, significant_ratio_lb=0.4,
+                     visualize=False):
+
+    h, w = img_size
+    h_crop, w_crop = int(h*crop), int(w*crop)
+
+    values = []
+    data_path = Path(data_path) / id / 'images' / split
+    imgs = [str(x) for x in data_path.iterdir()]
+    imgs = natsorted(imgs)
+    psnr_diff = 0
+    lim = 99999
+    last_frame = 0
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
+    result = []
+
+    for idx, _ in enumerate(tqdm(imgs)):
+
+        if idx + 1 == len(imgs) - 1:
+            break
+
+        if idx == 0:
+            I = cv2.imread(imgs[idx])[h_crop:h-h_crop,
+                                      w_crop:w-w_crop, :].flatten() / 255
+            K = cv2.imread(imgs[idx+1])[h_crop:h-h_crop,
+                                        w_crop:w-w_crop, :].flatten() / 255
+        else:
+            I = K
+            K = cv2.imread(imgs[idx+1])[h_crop:h-h_crop,
+                                        w_crop:w-w_crop, :].flatten() / 255
+        mse = np.mean(np.power((I - K), 2))
+        PSNR_Value = 10 * np.log10(1 / mse)
+
+        if len(values[last_frame:]) > 0:
+            psnr_diff = np.abs(PSNR_Value-np.mean(values[last_frame:]))
+            lim = std_scale*np.std(values[last_frame:])
+
+        if (idx-last_frame) > fps*min_frames_len and psnr_diff > lim and np.abs(1-PSNR_Value/values[-1]) >= candidate_ratio_lb:
+
+            if (len(imgs) - idx) < fps*min_frames_len:
+                values.append(PSNR_Value)
+                continue
+
+            result_1 = model(imgs[idx])
+            result_2 = model(imgs[idx+1])
+
+            if np.abs(1-PSNR_Value/values[-1]) <= significant_ratio_lb and np.abs(result_1.pred[0].shape[0] - result_2.pred[0].shape[0]) <= 1:
+                values.append(PSNR_Value)
+                continue
+
+            if visualize:
+                plt.subplot(121)
+                plt.imshow(cv2.imread(imgs[idx]))
+                plt.subplot(122)
+                plt.imshow(cv2.imread(imgs[idx+1]))
+                plt.show()
+
+            print("Cut at frame", idx+1, " time: ", np.round(idx/fps, 2))
+            print("PSNR-Obj: Frame {}: {}-{}; Frame {}: {}-{}".
+                  format(idx, values[-1], result_1.pred[0].shape[0],  idx+1, PSNR_Value, result_2.pred[0].shape[0]))
+            result.append(idx+1)
+            last_frame = idx+1
+            
+        values.append(PSNR_Value)
+
+    # temp = np.array(list(zip(np.arange(0, len(values)), values)))
+    return result
