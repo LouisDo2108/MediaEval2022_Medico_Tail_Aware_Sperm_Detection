@@ -36,6 +36,8 @@ def make_parser():
                         help="A directory for storing validation ground truth files (The same as prepare_data_eval.py's)", nargs='?')
     parser.add_argument("--yolo_model_path", type=str,
                         default=None, help="Path to the trained yolo model")
+    parser.add_argument("--img_size", type=float, default=640,
+                        help="yolov5 training image size", nargs='?')
     parser.add_argument("--track_thresh", type=float, default=0.6,
                         help="tracking confidence threshold", nargs='?')
     parser.add_argument("--track_buffer", type=int, default=30,
@@ -63,12 +65,12 @@ if __name__ == "__main__":
     # Create dataloader
     train_ann = os.path.join(args.data_dir, 'annotations/Train.json')
     val_ann = os.path.join(args.data_dir, 'annotations/Val.json')
-    exp = Exp(args.data_dir, train_ann, val_ann, img_size=640)
+    exp = Exp(args.data_dir, train_ann, val_ann, img_size=args.img_size)
     dataloader = exp.get_eval_loader(batch_size=1, is_distributed=False)
 
     # Create an MOTEvaluator object and run evaluate
     evaluator = MOTEvaluator(dataloader=dataloader, img_size=[
-                             640, 640], confthre=0.1, nmsthre=0.7, num_classes=3, args=args)
+                             args.img_size, args.img_size], confthre=0.1, nmsthre=0.7, num_classes=3, args=args)
 
     # Run evaluation
     Path(args.gt_dir).mkdir(parents=True, exist_ok=True)
