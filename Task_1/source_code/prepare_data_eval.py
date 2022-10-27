@@ -15,7 +15,9 @@ def make_parser():
     parser.add_argument("--gt_dir", type=str, default='../gt/',
                         help='A directory for storing validation ground truth files', nargs='?')
     parser.add_argument("--test_size", type=float, default=0.2,
-                        help='The validation/test ratio', nargs='?')
+                        help='The validation ratio', nargs='?')
+    parser.add_argument("--task", type=str, default='Val',
+                        help='Validation or Test', nargs='?')
     return parser
 
 
@@ -35,9 +37,12 @@ def create_val_dir(args):
         os.system(f'mv {source} {dest}')
 
 
-def create_anno_json(args):
+def create_anno_json(args, task='Val'):
     ANNOTATIONS_PATH = os.path.join(args.data_dir, 'annotations')
-    img_h, img_w = create_annotations(args.data_dir, ANNOTATIONS_PATH)
+    if task == 'val':
+        img_h, img_w = create_annotations(args.data_dir, ANNOTATIONS_PATH, SPLITS=['Train', 'Val'])
+    else:
+        img_h, img_w = create_annotations(args.data_dir, ANNOTATIONS_PATH, SPLITS=['Test'])
     return img_h, img_w
 
 
@@ -53,13 +58,17 @@ if __name__ == "__main__":
     args.data_dir = str(Path(args.data_dir).resolve())
     args.gt_dir = str(Path(args.gt_dir).resolve())
     
-    # Create a validation folder
-    if not os.path.exists(os.path.join(args.data_dir, 'Val')) or \
-        len(os.listdir(os.path.join(args.data_dir, 'Val'))) == 0:
-        create_val_dir(args)
+    if args.task == 'val':
+        # Create a validation folder
+        if not os.path.exists(os.path.join(args.data_dir, 'Val')) or \
+            len(os.listdir(os.path.join(args.data_dir, 'Val'))) == 0:
+            create_val_dir(args)
 
     # Create annotation json files
-    img_h, img_w = create_anno_json(args)
+        img_h, img_w = create_anno_json(args)
 
     # Create ground truth files for evaluation
-    create_gt(args, img_h, img_w)
+        create_gt(args, img_h, img_w)
+    else:
+        img_h, img_w = create_anno_json(args, args.task)
+        

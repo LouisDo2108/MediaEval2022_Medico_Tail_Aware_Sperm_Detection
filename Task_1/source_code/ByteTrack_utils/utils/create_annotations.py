@@ -3,6 +3,7 @@ from natsort import natsorted
 import cv2
 import numpy as np
 import json
+from pathlib import Path
 from ByteTrack_utils.utils.convert_bbox_format import ccwh2xyxy_single, xyxy2xywh_single
 
 
@@ -13,16 +14,19 @@ def create_annotations(DATA_PATH, OUT_PATH, SPLITS=['Train', 'Val']):
         os.makedirs(OUT_PATH)
 
     for split in SPLITS:
-        if split == "Val":
+        if split == "Train":
+            data_path = os.path.join(DATA_PATH, 'Train')
+        elif split == 'Val':
             data_path = os.path.join(DATA_PATH, 'Val')
         else:
-            data_path = os.path.join(DATA_PATH, 'Train')
+            data_path = os.path.join(DATA_PATH, 'Test')
         out_path = os.path.join(OUT_PATH, '{}.json'.format(split))
         out = {'images': [], 'annotations': [], 'videos': [],
                'categories': [{'id': 0, 'name': 'sperm'},
                               {'id': 1, 'name': 'cluster'},
                               {'id': 2, 'name': 'small or pinhead'}]}
-        seqs = os.listdir(data_path)
+        # seqs = os.listdir(data_path)
+        seqs = [str(x) for x in Path(data_path).iterdir() if x.is_dir()]
         image_cnt = 0
         ann_cnt = 0
         video_cnt = 0
