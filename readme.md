@@ -1,0 +1,1 @@
+yolov7 models Google drives: https://drive.google.com/drive/folders/10oE7MkhagPhJPCdZuMUCezbnvBNCpo2T?usp=share_link
