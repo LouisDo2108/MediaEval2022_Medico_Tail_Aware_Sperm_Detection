@@ -1,7 +1,0 @@
-Namespace(agnostic_nms=False, augment=False, classes=None, conf_thres=0.25, device='', exist_ok=True, img_size=640, iou_thres=0.45, name='exp', no_trace=True, nosave=False, project='/home/htluc/mediaeval2022_medico/MediaEval2022_Medico/Task_1/source_code/submission_code/predictions/', save_conf=False, save_txt=True, source='/home/htluc/datasets/VISEM_Tracking_Train_v4/Val/11/11.mp4', update=False, view_img=False, weights=['/home/htluc/mediaeval2022_medico/MediaEval2022_Medico/Task_1/source_code/submission_code/models/yolov7.pt'])
-Traceback (most recent call last):
-  File "/home/htluc/mediaeval2022_medico/MediaEval2022_Medico/Task_1/source_code/submission_code/code/yolov7/detect.py", line 201, in <module>
-    detect()
-  File "/home/htluc/mediaeval2022_medico/MediaEval2022_Medico/Task_1/source_code/submission_code/code/yolov7/detect.py", line 28, in detect
-    (save_dir / Path(opt.source.stem) if save_txt else save_dir).mkdir(parents=True, exist_ok=True)
-AttributeError: 'str' object has no attribute 'stem'
