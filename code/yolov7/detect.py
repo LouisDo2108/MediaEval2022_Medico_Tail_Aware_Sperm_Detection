@@ -15,6 +15,186 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
+import numpy as np
+from scipy.signal import find_peaks
+from skimage.feature import hog
+import copy
+
+def apply_brightness_contrast(input_img, brightness = 0, contrast = 0):
+    
+    if brightness != 0:
+        if brightness > 0:
+            shadow = brightness
+            highlight = 255
+        else:
+            shadow = 0
+            highlight = 255 + brightness
+        alpha_b = (highlight - shadow)/255
+        gamma_b = shadow
+        
+        buf = cv2.addWeighted(input_img, alpha_b, input_img, 0, gamma_b)
+    else:
+        buf = input_img.copy()
+    
+    if contrast != 0:
+        f = 131*(contrast + 127)/(127*(131-contrast))
+        alpha_c = f
+        gamma_c = 127*(1-f)
+        
+        buf = cv2.addWeighted(buf, alpha_c, buf, 0, gamma_c)
+
+    return buf
+
+def get_lines(img):
+    low_threshold = 255/3
+    high_threshold = 255
+    img = apply_brightness_contrast(img, brightness = 0, contrast = 32)
+    edge = cv2.Canny(img, low_threshold, high_threshold)
+
+    rho = 1  # distance resolution in pixels of the Hough grid
+    theta = np.pi / 180  # angular resolution in radians of the Hough grid
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 3  # minimum number of pixels making up a line
+    max_line_gap = 20  # maximum gap in pixels between connectable line segments
+    line_image = np.copy(img) * 0  # creating a blank to draw lines on
+
+    # Run Hough on edge detected image
+    # Output "lines" is an array containing endpoints of detected line segments
+    lines = cv2.HoughLinesP(edge, rho, theta, threshold, np.array([]),
+                        min_line_length, max_line_gap)
+    if lines is not None:
+        return len(lines)
+    else:
+        return 0
+
+
+def get_tiles_center(cx, cy, rx, ry):
+    tiles_center = [0 for x in range(9)]
+    tiles_center[0] = (cx-rx, cy-ry)
+    tiles_center[1] = (cx,   cy-ry)
+    tiles_center[2] = (cx+rx, cy-ry)
+    tiles_center[3] = (cx-rx, cy)
+    tiles_center[4] = (cx,   cy)
+    tiles_center[5] = (cx+rx, cy)
+    tiles_center[6] = (cx-rx, cy+ry)
+    tiles_center[7] = (cx,   cy+ry)
+    tiles_center[8] = (cx+rx, cy+ry)
+    return tiles_center
+
+def get_roi_tiles(img, bbox, r=15, visualize=False, visualize_tiles=False):
+
+    # image = cv2.imread(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    x1, y1, x2, y2 = bbox#[int(x) for x in ccwh2xyxy_single(480, 640, bbox)]
+    # cx, cy, w, h = get_cxcywh(480, 640, bbox)
+    cx, cy, w, h = (x1+x2)/2, (y1+y2)/2, x2-x1, y2-y1
+    rx = w/2+r
+    ry = h/2+r
+    tiles_center = get_tiles_center(cx, cy, rx, ry)
+    xlim = 640*0.025
+    ylim = 480*0.025
+
+    xmin, xmax, ymin, ymax = round(cx-w/2-r), round(cx+w/2+r), round(cy-h/2-r), round(cy+h/2+r)
+    if xmin <= 0: 
+        xmin = 0
+    if ymin <= 0:
+        ymin = 0
+    if ymax >= 480:
+        ymax = 480
+    if xmax >= 640:
+        xmax = 640
+
+    if visualize:
+        img_ = copy.deepcopy(img)
+        img_ = cv2.rectangle(img_, (x1, y1), (x2, y2), (0, 0, 0), thickness=1)
+        img_ = cv2.rectangle(img_, (xmin, ymin), (xmax, ymax), (0, 0, 0), thickness=1)
+        plt.subplot(111)
+        plt.imshow(img_, cmap='gray')
+        plt.gcf().set_size_inches(8, 12)
+        plt.show()
+        plt.subplot(111)
+        plt.imshow(img[ymin:ymax, xmin:xmax], cmap='gray')
+        plt.gcf().set_size_inches(8, 12)
+        plt.show()
+
+    tiles = dict.fromkeys([x for x in range(9)])
+
+    for idx, (x, y) in enumerate(tiles_center):
+        if x < 0 or x > 640 or y < 0 or y > 480:
+            if (abs(x) < xlim or abs(x) < 640 + xlim) and (abs(y) < ylim or abs(y) < 480 + ylim):
+                tiles[idx] = 0
+                # print("Skip tile", idx)
+                continue
+
+        x1 = round(x - r)
+        x2 = round(x + r)
+        y1 = round(y - r)
+        y2 = round(y + r)
+
+        if x1 <= xmin: 
+            x1 = xmin
+        if y1 <= ymin: 
+            y1 = ymin
+        if x2 >= xmax:
+            x2 = xmax
+        if y2 >= ymax:
+            y2 = ymax
+        tiles[idx] = img[y1:y2, x1:x2]
+
+    return tiles
+
+def check_tail(hog_array):
+
+    result = hog_array
+    tail = False
+
+    for ix, (k, res) in enumerate(result.items()):
+        
+        peaks, peak_plateaus = find_peaks(res, plateau_size=1)
+        
+        if len(peaks) < 1:
+            continue
+        if np.count_nonzero(np.diff(res)==0) >= 4:
+            continue 
+        candidate_peak = False
+        for peak in peaks:
+            if res[peak] >= 0.6:
+                candidate_peak = True
+                break
+        if not candidate_peak:
+            continue
+        tail = True
+        
+    return tail
+
+
+def get_image_gradient_histogram(img, visualize=False):
+    
+    low_threshold = 255/3
+    high_threshold = 255
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    edge = cv2.Canny(img, low_threshold, high_threshold)
+    fd, hog_image = hog(edge, orientations=9, pixels_per_cell=img.shape,
+                    cells_per_block=(1, 1), visualize=True)
+    
+
+    if visualize:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
+
+        ax1.axis('off')
+        ax1.imshow(img, cmap='gray')
+        ax1.set_title('Input image')
+
+        # Rescale histogram for better display
+        # hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
+
+        ax2.axis('off')
+        ax2.imshow(hog_image, cmap='gray')
+        ax2.set_title('Histogram of Oriented Gradients')
+        plt.show() 
+    return fd
+
 
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz, trace = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace
@@ -24,9 +204,9 @@ def detect(save_img=False):
 
     # Directories
     # save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
-    save_dir = Path(increment_path(Path(opt.project), exist_ok=opt.exist_ok))  # increment run
+    save_dir = Path(increment_path(Path(opt.project) / Path(opt.source).stem, exist_ok=opt.exist_ok))  # increment run
     # (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
-    (save_dir / Path(opt.source).stem if save_txt else save_dir).mkdir(parents=True, exist_ok=True)
+    (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)
 
     # Initialize
     set_logging()
@@ -35,7 +215,7 @@ def detect(save_img=False):
 
     # Load model
     # model = attempt_load(weights, map_location=device)  # load FP32 model
-    model = torch.hub.load('WongKinYiu/yolov7', 'custom', weights[0], force_reload=True)
+    model = torch.hub.load('WongKinYiu/yolov7', 'custom', weights[0], force_reload=False)
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
 
@@ -109,11 +289,56 @@ def detect(save_img=False):
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # img.jpg
-            txt_path = str(save_dir / p.stem / p.stem) + ('' if dataset.mode == 'image' else f'_frame_{int(frame)-1}')  # img.txt
+            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_frame_{int(frame)-1}')  # img.txt
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+                
+                # Suppression
+                if opt.suppress:
+                    st = time.perf_counter()
+                    det_ = det.cpu().numpy()[:, :4]
+                    to_del = np.ones(det.shape[0])
+                    for ix, (x1, y1, x2, y2) in enumerate(det_):
+                        if det[ix, 4] >= 0.7:
+                            continue
+                        cx, cy = (x1+x2)/2, (y1+y2)/2
+                        if cx < img.shape[3]*0.025 or cx > img.shape[3]*0.975 or cy < img.shape[2]*0.025 or cy > img.shape[2]*0.975:
+                            to_del[ix] = -1
+                        elif cx < img.shape[3]*0.05 or cx > img.shape[3]*0.95 or cy < img.shape[2]*0.05 or cy > img.shape[2]*0.95:
+                            to_del[ix] = 0 # Candidate
+
+                    for d, v in enumerate(to_del):
+                        if v == -1 or v == 1:
+                            continue
+                        bbox = det_[d, :4]
+                        tiles = get_roi_tiles(im0, bbox=bbox, visualize=False)
+                        result = {}
+                        
+                        lines = False
+                        for idx, tile in tiles.items():
+                            if idx == 4:
+                                continue
+                            if isinstance(tile, np.ndarray) and tile.shape[0] * tile.shape[1] >= 100:
+                                if get_lines(tile) > 0:
+                                    lines = True
+                                    break
+                                result[idx] = get_image_gradient_histogram(img=tile, visualize=False)
+                        
+                        if lines:
+                            tail = True
+                        else:
+                            tail = check_tail(result)
+                            
+                        if tail:
+                            to_del[d] = 1
+                            
+                    det = det[to_del == 1]
+                    
+                    en = time.perf_counter()
+                    print("Extra time taken: {}".format(round(en-st, 2)))
+                
 
                 # Print results
                 for c in det[:, -1].unique():
@@ -192,6 +417,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--no-trace', action='store_true', help='don`t trace model')
+    parser.add_argument('--suppress', action='store_true', help='suppress instances near the border of the image')
     opt = parser.parse_args()
     print(opt)
     #check_requirements(exclude=('pycocotools', 'thop'))
