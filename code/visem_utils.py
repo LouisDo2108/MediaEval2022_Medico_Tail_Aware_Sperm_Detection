@@ -544,3 +544,25 @@ def create_annotations(DATA_PATH, OUT_PATH):
     json.dump(out, open(out_path, 'w'))
     return H, W
 
+def merge_videos(videos, save_path):
+    
+    print("Merging videos")
+    # Create a new video
+    vid_cap = cv2.VideoCapture(videos[0])
+    fps = vid_cap.get(cv2.CAP_PROP_FPS)
+    w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    print(fps, w, h)
+    video = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+    # Write all the frames sequentially to the new video
+    for v in videos:
+        curr_v = cv2.VideoCapture(v)
+        while curr_v.isOpened():
+            r, frame = curr_v.read()    # Get return value and curr frame of curr video
+            if not r:
+                break
+            video.write(frame)          # Write the frame
+
+    video.release() 
+    print("Saved to ", save_path)

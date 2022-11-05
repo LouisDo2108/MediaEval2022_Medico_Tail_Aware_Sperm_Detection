@@ -1,7 +1,8 @@
 *.pt
 *.mp4
 *.out
-
+predictions/
+videos/
 ############################################################### Bytetrack ###############################################################
 # Byte-compiled / optimized / DLL files
 __pycache__/

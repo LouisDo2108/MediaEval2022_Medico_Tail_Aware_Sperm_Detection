@@ -1,0 +1,6 @@
+[submodule "yolov5"]
+	path = yolov5
+	url = https://github.com/DanhLe1412/yolov5
+[submodule "SORT_yolov5"]
+	path = SORT_yolov5
+	url = https://github.com/DanhLe1412/SORT_yolov5.git
