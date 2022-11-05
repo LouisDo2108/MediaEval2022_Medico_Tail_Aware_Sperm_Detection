@@ -1,4 +1,8 @@
 #!/bin/bash
+#SBATCH -o %j.out
+#SBATCH --gres=gpu:1
+#SBATCH --nodelist=selab2
+#SBATCH --mem-per-cpu=4GB
 eval "$(conda shell.bash hook)"
 conda activate medico
 
