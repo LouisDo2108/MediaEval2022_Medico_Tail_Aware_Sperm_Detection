@@ -15,7 +15,7 @@ Parameters:
 --suppress: a flag to activate border suppression
 
 ## run_track.sh
-Track sperms in a video. using SORT
+Track sperms in a video using SORT
 Parameters:
 --img-size: the input image size of the yolo model 
 --source: the .mp4 videos
