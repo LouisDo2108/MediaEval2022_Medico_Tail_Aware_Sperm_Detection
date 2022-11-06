@@ -301,7 +301,7 @@ def detect(save_img=False):
                     det_ = det.cpu().numpy()[:, :4]
                     to_del = np.ones(det.shape[0])
                     for ix, (x1, y1, x2, y2) in enumerate(det_):
-                        if det[ix, 4] >= 0.7:
+                        if det[ix, 4] >= 0.7 or det[ix, -1] != 0:
                             continue
                         cx, cy = (x1+x2)/2, (y1+y2)/2
                         if cx < img.shape[3]*0.025 or cx > img.shape[3]*0.975 or cy < img.shape[2]*0.025 or cy > img.shape[2]*0.975:
