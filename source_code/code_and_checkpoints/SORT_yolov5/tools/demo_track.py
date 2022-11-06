@@ -265,9 +265,9 @@ def run(
         is_download = False,
         suppress=False
 ):
-    speedlines = [[[0, 320], [1920, 320]],
-        [[0, 720], [1920, 720]]]
-    countline = [[0, 520], [1920, 520]]
+    # speedlines = [[[0, 320], [1920, 320]],
+    #     [[0, 720], [1920, 720]]]
+    # countline = [[0, 520], [1920, 520]]
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (VID_FORMATS)
@@ -318,7 +318,7 @@ def run(
     vid_path, vid_writer, txt_path = [None] * nr_sources, [None] * nr_sources, [None] * nr_sources
 
     # Create as many strong sort instances as there are video sources
-    sort_tracker = SORT(speedlines=speedlines, countline=countline)
+    sort_tracker = SORT(speedlines=None, countline=None)
     outputs = [None] * nr_sources
 
     old_img_w = old_img_h = img_size
@@ -394,7 +394,7 @@ def run(
                     det_ = det.cpu().numpy()[:, :4]
                     to_del = np.ones(det.shape[0])
                     for ix, (x1, y1, x2, y2) in enumerate(det_):
-                        if det[ix, 4] >= 0.7:
+                        if det[ix, 4] >= 0.7 or det[ix, -1] != 0:
                             continue
                         cx, cy = (x1+x2)/2, (y1+y2)/2
                         if cx < im.shape[3]*0.025 or cx > im.shape[3]*0.975 or cy < im.shape[2]*0.025 or cy > im.shape[2]*0.975:
@@ -455,7 +455,7 @@ def run(
                         conf = output.conf
                         cls = output.class_id
                         id = output.track_id
-                        speed = output.speed
+                        # speed = output.speed
                         if save_txt:
                             xywh = (xyxy2xywh(torch.tensor(output.bbox.astype(np.float16)).view(1, 4)) / gn).view(-1).tolist()
                             # Write MOT compliant results to file
@@ -514,8 +514,8 @@ def run(
     # t = tuple(x / seen * 1E3 for x in dt)  # speeds per image
     # LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS, %.1fms strong sort update per image at shape {(1, 3, *img_size)}' % t)
     if save_txt or save_vid:
-        s = f"\n{len(list(save_dir.glob('tracks/*.txt')))} tracks saved to {save_dir / 'tracks'}" if save_txt else ''
-        LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
+        # s = f"\n{len(list(save_dir.glob('tracks/*.txt')))} tracks saved to {save_dir / 'tracks'}" if save_txt else ''
+        LOGGER.info(f"Results saved to {str(save_dir / p.name)}")
     if update:
         strip_optimizer(yolo_weights)  # update model (to fix SourceChangeWarning)
 

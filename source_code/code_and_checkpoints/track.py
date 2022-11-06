@@ -7,6 +7,7 @@ from SORT_yolov5.tools.demo_track import run
 from split_video import split_video
 import copy
 import torch
+import os
 
 if __name__ == "__main__":
     
@@ -84,11 +85,16 @@ if __name__ == "__main__":
                 for label_txt in natsorted(label_path.glob(r'*.txt'), key=str):
                     shutil.move(str(label_txt.resolve()), str(save_dir / 'labels_ftid' / (id + '_frame_{}.txt'.format(count))))
                     count += 1
-                print("Removing folder", Path(v).parent.resolve())
-                shutil.rmtree(str(Path(v).parent.resolve()), ignore_errors=True)
             shutil.move(save_path, str(save_dir / "{}_tracking.mp4".format(id)))
         except Exception as e:
             print(e)
-        
+    
+    save_dir = r"{}".format(opt.project)
+    p = Path(save_dir).glob("*") 
+    
+    to_remove_folders = [str(x) for x in p if x.is_dir() and '_' in str(x.stem)]
+    for folder in to_remove_folders:
+        os.system("rm -rf {}".format(to_remove))
+        print("Removed", to_remove)
     print("-"*10, "Done","-"*10)
     

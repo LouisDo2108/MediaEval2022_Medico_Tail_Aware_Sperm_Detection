@@ -243,26 +243,27 @@ class SORT(object):
       else:
         nline = [trk.cached_pos, [xmean,y2]]
          
-        if doIntersect(self.countline[0], self.countline[1], nline[0], nline[1]):
-          if not trk.counted:
-              trk.counted = True
-              if trk.class_id == 3:
-                self.cars += 1
-              if trk.class_id == 4:
-                self.motors += 1
+        # if doIntersect(self.countline[0], self.countline[1], nline[0], nline[1]):
+        #   if not trk.counted:
+        #       trk.counted = True
+        #       if trk.class_id == 3:
+        #         self.cars += 1
+        #       if trk.class_id == 4:
+        #         self.motors += 1
 
-        for line in self.model_estimation.speedlines:
-          if doIntersect(line[0], line[1], nline[0], nline[1]):
-            if line not in trk.cached_lines:
-              trk.cached_lines.append(line)
-              if len(trk.cached_lines) > 1:
-                trk.speed = self.model_estimation.estimate_speed(trk, frame_idx, self._tlwh_to_xywh([x1, y1, x2, y2]))
-              trk.start_t = frame_idx
-              trk.start_pos = self._tlwh_to_xywh([x1,y1,x2,y2])
+        # for line in self.model_estimation.speedlines:
+        #   if doIntersect(line[0], line[1], nline[0], nline[1]):
+        #     if line not in trk.cached_lines:
+        #       trk.cached_lines.append(line)
+        #       if len(trk.cached_lines) > 1:
+        #         trk.speed = self.model_estimation.estimate_speed(trk, frame_idx, self._tlwh_to_xywh([x1, y1, x2, y2]))
+        #       trk.start_t = frame_idx
+        #       trk.start_pos = self._tlwh_to_xywh([x1,y1,x2,y2])
               
       trk.cached_pos = [xmean, ymean]
       if (trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits):
-        output = OUTPUT(d[:4],d[4], d[5], trk.id+1, trk.speed)
+        # output = OUTPUT(d[:4],d[4], d[5], trk.id+1, trk.speed)
+        output = OUTPUT(d[:4],d[4], d[5], trk.id+1, 0)
         ret.append(output)
       i -= 1
       # remove dead tracklet
