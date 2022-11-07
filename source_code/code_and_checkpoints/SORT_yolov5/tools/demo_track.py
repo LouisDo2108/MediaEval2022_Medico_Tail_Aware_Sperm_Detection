@@ -510,6 +510,9 @@ def run(
 
             prev_frames[i] = curr_frames[i]
 
+    for vw in vid_writer:
+        if isinstance(vw, cv2.VideoWriter):
+            vw.release()
     # Print results
     # t = tuple(x / seen * 1E3 for x in dt)  # speeds per image
     # LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS, %.1fms strong sort update per image at shape {(1, 3, *img_size)}' % t)
