@@ -57,6 +57,7 @@ if __name__ == "__main__":
         fps = vid_cap.get(cv2.CAP_PROP_FPS)
         w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        vid_cap.release()
         
         print(fps, w, h)
         video = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
@@ -68,6 +69,7 @@ if __name__ == "__main__":
                 if not r:
                     break
                 video.write(frame)          # Write the frame
+            curr_v.release()
 
         video.release() 
         print("Saved to ", save_path)
