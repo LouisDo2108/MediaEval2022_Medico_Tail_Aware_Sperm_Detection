@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     to_remove_folders = [str(x) for x in p if x.is_dir() and '_' in str(x.stem)]
     for folder in to_remove_folders:
-        os.system("rm -rf {}".format(to_remove))
-        print("Removed", to_remove)
+        os.system("rm -rf {}".format(folder))
+        print("Removed", folder)
     print("-"*10, "Done","-"*10)
     
