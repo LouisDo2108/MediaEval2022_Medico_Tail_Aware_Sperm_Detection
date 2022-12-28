@@ -9,17 +9,17 @@ https://drive.google.com/drive/folders/17JWZ_SJ9fvFpKTPUXlkjrJIy8DuooEoi?usp=sha
 
 # Run
 ## run_detect.sh
-Sperms detection using YoloV7
-Parameters:
- --img-size: the input image size of the yolo model 
---source: the .mp4 videos
---weights: the yolo model .pt weight
---suppress: a flag to activate border suppression
+Sperms detection using YoloV7 \
+Parameters: \
+ --img-size: the input image size of the yolo model \
+--source: the .mp4 videos \
+--weights: the yolo model .pt weight \
+--suppress: a flag to activate border suppression \
 
 ## run_track.sh
-Track sperms in a video using SORT
-Parameters:
---img-size: the input image size of the yolo model 
---source: the .mp4 videos
---yolo-weights: the yolo model .pt weight
+Track sperms in a video using SORT \
+Parameters: \
+--img-size: the input image size of the yolo model \
+--source: the .mp4 videos \
+--yolo-weights: the yolo model .pt weight \
 --suppress: a flag to activate border suppression

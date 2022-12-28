@@ -1,9 +1,9 @@
 # Tail-Aware Sperm Analysis for Transparent Tracking of Spermatozoa
 
-This is the official implementation of our approach in the Medical Multimedia Task: Transparent Tracking of Spermatozoa in MediaEval2022.
-The MediaEval 2022 Workshop will be held 12-13 January 2023, collocated with MMM 2023 in Bergen, Norway and also online.
+This is the official implementation of our approach in the Medical Multimedia Task: Transparent Tracking of Spermatozoa in MediaEval2022. The MediaEval 2022 Workshop will be held 12-13 January 2023, collocated with MMM 2023 in Bergen, Norway and also online. 
 
 Click [here](https://multimediaeval.github.io/editions/2022/tasks/medico/) for task description.
+
 Our Overleaf project: [link](https://www.overleaf.com/read/hgqwvqkjybky)
 
 ## Abstract 
