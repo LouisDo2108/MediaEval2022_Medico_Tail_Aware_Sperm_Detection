@@ -1,3 +1,4 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/LouisDo2108/MediaEval2022_Medico_Tail_Aware_Sperm_Detection/badge?style=flat-square)](https://www.codefactor.io/repository/github/LouisDo2108/MediaEval2022_Medico_Tail_Aware_Sperm_Detection/badge?style=flat-square)
 # Tail-Aware Sperm Analysis for Transparent Tracking of Spermatozoa
 
 This is the official implementation of our approach for the Medical Multimedia Task: Transparent Tracking of Spermatozoa in MediaEval2022. The MediaEval 2022 Workshop will be held 12-13 January 2023, collocated with MMM 2023 in Bergen, Norway and also online. 
