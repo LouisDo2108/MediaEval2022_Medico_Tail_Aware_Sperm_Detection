@@ -4,8 +4,10 @@ https://drive.google.com/drive/folders/10oE7MkhagPhJPCdZuMUCezbnvBNCpo2T?usp=sha
 https://drive.google.com/drive/folders/17JWZ_SJ9fvFpKTPUXlkjrJIy8DuooEoi?usp=share_link
 
 # Setup
-1. Create a conda environemnt with python==3.8, pip3 install -r requirements.txt
-2. set current working directory as  /source_code/code_and_checkpoints/
+1. Create a conda environemnt with python==3.8
+2. Install PyTorch: follow [PyTorch's official documentation](https://pytorch.org/get-started/previous-versions/#v1121)
+3. Install other packages: ```pip3 install -r requirements.txt```
+4. set current working directory as  /source_code/code_and_checkpoints/
 
 # Run
 ## run_detect.sh
