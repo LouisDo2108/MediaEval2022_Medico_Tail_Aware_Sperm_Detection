@@ -8,11 +8,12 @@ This is the official implementation of our approach for the Medical Multimedia T
 Please see the readme.md inside the source_code/ folder
 
 ## Citation
-If you find this code useful for your research, please cite our paper:
+If your work is inspired by this work/code, please cite our paper:
 ```bibtex
-@article{huynh2022tail,
-  title={Tail-Aware Sperm Analysis for Transparent Tracking of Spermatozoa},
+@inproceedings{huynh2022tail,
+  title={Tail-Aware Sperm Analysis for Transparent Tracking of Spermatozoa.},
   author={Huynh, Tuan-Luc and Nguyen, Huu-Hung and Hoang, Xuan-Nhat and Dao, Thao Thi Phuong and Nguyen, Tien-Phat and Huynh, Viet-Tham and Nguyen, Hai-Dang and Le, Trung-Nghia and Tran, Minh-Triet},
+  booktitle={MediaEval},
   year={2022}
 }
 ```
